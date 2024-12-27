@@ -118,6 +118,19 @@
     rsync
   ];
 
+  #Typing
+  # Vi mode for login shells
+  environment.shellInit = ''
+    set -o vi
+    bind -m vi-insert '"\C-l": clear-screen'
+  '';
+
+  # Vi mode for non-login shells
+  environment.etc."bash.bashrc".text = ''
+    set -o vi
+    bind -m vi-insert '"\C-l": clear-screen'
+  '';
+
   # programs.nix-index = {
   # enable = true;
   # enableBashIntegration = true;
