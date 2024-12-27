@@ -1,6 +1,6 @@
 # Japanese NixOS TTY
 
-A minimalist NixOS configuration focusing on Japanese half-width katakana support in the Linux virtual terminal console (TTY1-6).
+A minimalist NixOS configuration working to implement Japanese kana support in the Linux virtual terminal console (TTY1-6).
 
 ## PSF1 Font Development
 
