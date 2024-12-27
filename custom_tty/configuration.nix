@@ -8,7 +8,8 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
@@ -23,7 +24,7 @@
   networking.hostName = "ttnjja-x240"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   time.timeZone = "Asia/Tokyo";
 
@@ -32,17 +33,17 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.
-i18n = {
-  defaultLocale = "ja_JP.UTF-8";
-  inputMethod = {
-    enabled = "fcitx5";  # Keep this as string "fcitx5", not using type/enable
-    fcitx5.addons = [ pkgs.fcitx5-mozc ];
+  i18n = {
+    defaultLocale = "ja_JP.UTF-8";
+    inputMethod = {
+      enabled = "fcitx5"; # Keep this as string "fcitx5", not using type/enable
+      fcitx5.addons = [ pkgs.fcitx5-mozc ];
+    };
   };
-};
- 
+
   # Console config
-console = {
-    font = "${(pkgs.callPackage ./unifont-psf.nix {})}/share/consolefonts/unifont.psf.gz";
+  console = {
+    font = "${(pkgs.callPackage ./unifont256-psf1.nix {})}/share/consolefonts/unifont.psf.gz";
     useXkbConfig = true;
   };
 
@@ -57,30 +58,30 @@ console = {
     ];
     fontconfig.defaultFonts = {
       # Added Noto fonts as primary for better CJK support
-      monospace = [ "Noto Sans Mono CJK JP" "DejaVu Sans Mono" ];  # CJK priority
+      monospace = [ "Noto Sans Mono CJK JP" "DejaVu Sans Mono" ]; # CJK priority
       sansSerif = [ "Noto Sans CJK JP" ];
       serif = [ "Noto Serif CJK JP" ];
     };
   };
 
   # Enable the X11 windowing system.
-services.xserver = {
-  enable = true;
-  xkb.layout = "jp";
-  # xserver.xkb.options = "eurosign:e,caps:escape";
-  
-  displayManager = {
-    lightdm = {
-      enable = true;
-      greeters.gtk.enable = true;
-    };
-    defaultSession = "none+xmonad";
-  };
-
-  windowManager.xmonad = {
+  services.xserver = {
     enable = true;
+    xkb.layout = "jp";
+    # xserver.xkb.options = "eurosign:e,caps:escape";
+
+    displayManager = {
+      lightdm = {
+        enable = true;
+        greeters.gtk.enable = true;
+      };
+      defaultSession = "none+xmonad";
+    };
+
+    windowManager.xmonad = {
+      enable = true;
+    };
   };
-};
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -108,7 +109,7 @@ services.xserver = {
 
   # System packages
   environment.systemPackages = with pkgs; [
-    gtk3     # Required for lightdm greeter
+    gtk3 # Required for lightdm greeter
     nix-index
     vim
     wget
@@ -118,8 +119,8 @@ services.xserver = {
   ];
 
   # programs.nix-index = {
-    # enable = true;
-    # enableBashIntegration = true;
+  # enable = true;
+  # enableBashIntegration = true;
   # };
 
   # Some programs need SUID wrappers, can be configured further or are
