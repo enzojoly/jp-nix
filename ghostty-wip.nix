@@ -38,7 +38,7 @@ let
     hash = "sha256-AHI1Z4mfgXkNwQA8xYq4tS0/BARbHL7gQUT41vCxQTM=";
   };
 
-zigCache = stdenv.mkDerivation {
+  zigCache = stdenv.mkDerivation {
     pname = "ghostty-cache";
     version = "1.0.0";
 
@@ -52,11 +52,11 @@ zigCache = stdenv.mkDerivation {
     dontFixup = true;
 
     buildPhase = ''
-      # Set cache directory to output
       export ZIG_GLOBAL_CACHE_DIR=$out
-
-      # Redirect output to prevent empty lines
-      bash nix/build-support/fetch-zig-cache.sh 2>&1 > /dev/null || exit 1
+      exec 3>&1
+      exec 1>/dev/null 2>/dev/null
+      bash nix/build-support/fetch-zig-cache.sh
+      exec 1>&3 3>&-
     '';
 
     outputHashMode = "recursive";
@@ -105,16 +105,17 @@ in stdenv.mkDerivation (finalAttrs: {
   zigBuildFlags = "-Dversion-string=${finalAttrs.version}-${revision}-nix";
 
   preBuild = ''
-    # Clear and setup zig cache
     rm -rf $ZIG_GLOBAL_CACHE_DIR
     cp -r --reflink=auto ${zigCache} $ZIG_GLOBAL_CACHE_DIR
     chmod u+rwX -R $ZIG_GLOBAL_CACHE_DIR
   '';
 
-buildPhase = ''
+  buildPhase = ''
     runHook preBuild
 
-    # Redirect all output except errors
+    exec 3>&1
+    exec 1>/dev/null 2>/dev/null
+
     zig build \
       --prefix $out \
       --system-mode \
@@ -122,7 +123,9 @@ buildPhase = ''
       -Dcpu=baseline \
       -Dapp-runtime=gtk \
       $zigBuildFlags \
-      --verbose=err 2>&1 > >(grep -v '^$' >&2)
+      --verbose=err
+
+    exec 1>&3 3>&-
 
     runHook postBuild
   '';
@@ -134,24 +137,20 @@ buildPhase = ''
 
     mkdir -p "$out/nix-support"
 
-    # Setup terminfo
     mkdir -p "$terminfo/share"
     mv "$terminfo_src" "$terminfo/share/terminfo"
     ln -sf "$terminfo/share/terminfo" "$terminfo_src"
     echo "$terminfo" >> "$out/nix-support/propagated-user-env-packages"
 
-    # Setup shell integration
     mkdir -p "$shell_integration"
     mv "$out/share/ghostty/shell-integration" "$shell_integration/shell-integration"
     ln -sf "$shell_integration/shell-integration" "$out/share/ghostty/shell-integration"
     echo "$shell_integration" >> "$out/nix-support/propagated-user-env-packages"
 
-    # Setup vim files
     mv $out/share/vim/vimfiles "$vim"
     ln -sf "$vim" "$out/share/vim/vimfiles"
     echo "$vim" >> "$out/nix-support/propagated-user-env-packages"
 
-    # Install icons and desktop files
     mkdir -p $out/share/applications
     cp dist/linux/app.desktop $out/share/applications/com.mitchellh.ghostty.desktop
 
